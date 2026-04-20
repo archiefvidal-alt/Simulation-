@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triple Level Guessing Game</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f0f2f5;
+        }
+        .game-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 350px;
+        }
+        h1 { color: #333; margin-bottom: 0.5rem; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 1.5rem; color: #666; }
+        input {
+            padding: 10px;
+            width: 60px;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { background: #0056b3; }
+        #message { margin-top: 1.5rem; font-weight: bold; min-height: 1.2em; }
+        .level-badge { background: #e7f3ff; color: #007bff; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>Guess the Number</h1>
+    <div class="stats">
+        <span>Level: <span id="level-display" class="level-badge">1</span></span>
+        <span>Chances: <span id="chances-display" style="color: #dc3545; font-weight: bold;">10</span></span>
+    </div>
+    
+    <p id="range-text">Guess a number between 1 and 10</p>
+    
+    <input type="number" id="user-guess" placeholder="?">
+    <br>
+    <button onclick="checkGuess()">Submit Guess</button>
+    
+    <div id="message">Good luck!</div>
+</div>
+
+<script>
+    let level = 1;
+    let chances = 10;
+    let targetNumber;
+    let maxRange = 10;
+
+    // Elements
+    const levelDisplay = document.getElementById('level-display');
+    const chancesDisplay = document.getElementById('chances-display');
+    const rangeText = document.getElementById('range-text');
+    const message = document.getElementById('message');
+    const userInput = document.getElementById('user-guess');
+
+    function initGame() {
+        if (level === 1) maxRange = 10;
+        else if (level === 2) maxRange = 20;
+        else if (level === 3) maxRange = 30;
+
+        targetNumber = Math.floor(Math.random() * maxRange) + 1;
+        chances = 10;
+        
+        updateDisplay();
+        console.log("Cheater! The number is: " + targetNumber); // For testing
+    }
+
+    function updateDisplay() {
+        levelDisplay.innerText = level;
+        chancesDisplay.innerText = chances;
+        rangeText.innerText = `Guess a number between 1 and ${maxRange}`;
+    }
+
+    function restartGame() {
+        level = 1;
+        initGame();
+        message.style.color = "red";
+        message.innerText = "Game Over! Restarting from Level 1...";
+    }
+
+    function checkGuess() {
+        const guess = parseInt(userInput.value);
+        userInput.value = ''; // Clear input
+        userInput.focus();
+
+        if (isNaN(guess) || guess < 1 || guess > maxRange) {
+            message.style.color = "orange";
+            message.innerText = "Invalid number!";
+            return;
+        }
+
+        if (guess === targetNumber) {
+            if (level < 3) {
+                message.style.color = "green";
+                message.innerText = `Correct! Moving to Level ${level + 1}...`;
+                level++;
+                setTimeout(initGame, 1500);
+            } else {
+                message.style.color = "gold";
+                message.innerText = "CONGRATULATIONS! You beat the game!";
+                setTimeout(restartGame, 3000);
+            }
+        } else {
+            chances--;
+            chancesDisplay.innerText = chances;
+            
+            if (chances <= 0) {
+                restartGame();
+            } else {
+                message.style.color = "#333";
+                message.innerText = guess > targetNumber ? "Too High!" : "Too Low!";
+            }
+        }
+    }
+
+    // Allow Enter key to submit
+    userInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            checkGuess();
+        }
+    });
+
+    // Start the first game
+    initGame();
+</script>
+
+</body>
+</html>
